@@ -14,7 +14,7 @@
         <h2 id="public-url-heading" class="text-base font-semibold">Permanent public URL</h2>
         <p class="mt-1 text-sm text-slate-600">This URL never changes, even if you rename the group, so it is safe to program onto NFC cards.</p>
         <x-copy-url class="mt-3" :url="$group->publicUrl()" />
-        <p class="mt-2 text-xs text-slate-500">The public page is not available yet; it will be added in a later milestone.</p>
+        <x-public-page-note class="mt-2" :group="$group" />
     </section>
 
     <section class="mt-6 rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="details-heading">

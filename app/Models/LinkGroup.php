@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -76,9 +77,28 @@ class LinkGroup extends Model
         }
     }
 
+    public const AVATAR_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
+
     public function publicUrl(): string
     {
-        return url('/p/'.$this->slug);
+        return route('public.groups.show', $this->slug);
+    }
+
+    /**
+     * URL of the avatar on the public disk, or null when there is no usable image file.
+     */
+    public function avatarUrl(): ?string
+    {
+        $path = $this->avatar_path;
+
+        if (blank($path)
+            || str_contains($path, '..')
+            || ! in_array(Str::lower(pathinfo($path, PATHINFO_EXTENSION)), self::AVATAR_EXTENSIONS, true)
+            || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     /**

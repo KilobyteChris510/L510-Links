@@ -1,6 +1,6 @@
-@props(['title' => null])
+@props(['title' => null, 'description' => null, 'canonical' => null])
 
-{{-- Layout for future public link pages. Intentionally free of app navigation and auth state. --}}
+{{-- Layout for public link pages. Free of app navigation, auth state, and JavaScript. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
     <head>
@@ -9,11 +9,24 @@
 
         <title>{{ $title ?? config('app.name') }}</title>
 
+        @if ($description)
+            <meta name="description" content="{{ $description }}">
+        @endif
+        @if ($canonical)
+            <link rel="canonical" href="{{ $canonical }}">
+            <meta property="og:url" content="{{ $canonical }}">
+        @endif
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{ $title ?? config('app.name') }}">
+        @if ($description)
+            <meta property="og:description" content="{{ $description }}">
+        @endif
+
         @fonts
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite('resources/css/app.css')
     </head>
-    <body {{ $attributes->merge(['class' => 'min-h-full bg-white font-sans text-slate-900 antialiased']) }}>
-        <main class="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 py-10">
+    <body {{ $attributes->merge(['class' => 'min-h-full bg-slate-100 font-sans text-slate-900 antialiased']) }}>
+        <main class="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 py-10 sm:py-16">
             {{ $slot }}
         </main>
     </body>

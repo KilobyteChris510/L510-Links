@@ -42,7 +42,7 @@
                         @endif
 
                         <x-copy-url class="mt-3" :url="$group->publicUrl()" :label="'Public URL for '.$group->name" />
-                        <p class="mt-1 text-xs text-slate-500">Public page coming in a later milestone.</p>
+                        <x-public-page-note class="mt-1" :group="$group" />
 
                         <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-3">
                             <a href="{{ route('groups.links.index', $group) }}" class="text-sm font-semibold text-slate-900 hover:underline">Manage links</a>

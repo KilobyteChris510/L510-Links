@@ -200,7 +200,7 @@ class LinkGroupManagementTest extends TestCase
             ->assertSee('Permanent public URL')
             ->assertSee(url('/p/acme'))
             ->assertSee('Copy link')
-            ->assertSee('not available yet')
+            ->assertSee('View public page')
             ->assertDontSee('name="slug"', false);
     }
 

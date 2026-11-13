@@ -2,7 +2,7 @@
 
 An in-house, Linktree-style application. Authenticated users manage collections of links; each collection will eventually have a permanent public URL suitable for programming onto an NFC card.
 
-Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), and link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering). Public pages, appearance customization, NFC/QR, and analytics are not implemented yet.
+Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), and link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering), and public pages at `/p/{slug}`. Appearance customization, NFC/QR, and analytics are not implemented yet.
 
 ## Stack
 
@@ -32,6 +32,7 @@ createdb l510_links
 # Then set DB_USERNAME / DB_PASSWORD in .env for your local Postgres role.
 
 php artisan migrate
+php artisan storage:link   # serves group avatars from storage/app/public
 php artisan db:seed   # optional: creates test@example.com / password
 
 npm run build
@@ -78,6 +79,10 @@ Authentication is plain controller-based Blade auth using Laravel's built-in ser
 
 Link URLs must be `http` or `https`. A URL entered without a scheme that looks like a domain (`example.com/page`) is saved as `https://example.com/page`; any other input is stored exactly as typed or rejected. Requests for another user's groups or links return 404.
 
+## Public pages
+
+`GET /p/{slug}` (`public.groups.show`, `PublicLinkGroupController`) is the permanent public page for a group. It needs no login, shows only active links in saved order, and returns 404 for unknown, inactive, or soft-deleted groups; reactivating a group brings the same URL back. The route runs without the session, cookie, and CSRF middleware, so anonymous visits (for example NFC taps) create no session rows or cookies. The page loads only CSS (no JavaScript). Stored links that are not absolute `http(s)` URLs are shown as unavailable rather than as links. An avatar is shown when `avatar_path` points to an existing image (jpg, jpeg, png, gif, webp, avif) on the `public` disk.
+
 Public registration is intentionally disabled. Until an admin invite flow exists, create users with the seeder or Tinker:
 
 ```bash
@@ -87,7 +92,7 @@ php artisan tinker
 
 ## Data model
 
-- `link_groups` — owned by a user; published later at `/p/{slug}`. Slugs are generated from the name at creation (`acme-co`, `acme-co-2`, ...), are unique across all rows including soft-deleted ones, and can never be changed. Groups are soft-deleted only (`forceDelete` is denied by policy), and a user who owns groups cannot be hard-deleted (`ON DELETE RESTRICT`), so issued URLs are never freed.
+- `link_groups` — owned by a user; published at `/p/{slug}`. Slugs are generated from the name at creation (`acme-co`, `acme-co-2`, ...), are unique across all rows including soft-deleted ones, and can never be changed. Groups are soft-deleted only (`forceDelete` is denied by policy), and a user who owns groups cannot be hard-deleted (`ON DELETE RESTRICT`), so issued URLs are never freed.
 - `links` — belong to one group, ordered by `sort_order` then `id`. Soft-deleting a group keeps its links so a restore brings them back; they are removed only if the group is hard-deleted (`ON DELETE CASCADE`).
 - Authorization: `LinkGroupPolicy` (owner only) and `LinkPolicy` (owner of the link's group; links in soft-deleted groups are denied).
 

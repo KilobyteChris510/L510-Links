@@ -4,9 +4,28 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LinkGroupController;
 use App\Http\Controllers\LinkOrderController;
+use App\Http\Controllers\PublicLinkGroupController;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::redirect('/', '/dashboard');
+
+// Permanent public URL (may be written to NFC cards). Stateless: no session row or
+// cookies are created for anonymous visitors.
+Route::get('/p/{slug}', PublicLinkGroupController::class)
+    ->where('slug', '[a-z0-9-]+')
+    ->withoutMiddleware([
+        EncryptCookies::class,
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])
+    ->name('public.groups.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');

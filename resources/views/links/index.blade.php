@@ -16,7 +16,7 @@
 
     <div class="mt-3">
         <x-copy-url :url="$group->publicUrl()" />
-        <p class="mt-1 text-xs text-slate-500">Public page coming in a later milestone.</p>
+        <x-public-page-note class="mt-1" :group="$group" />
     </div>
 
     <section class="mt-8 rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="add-link-heading">

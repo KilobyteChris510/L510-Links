@@ -31,6 +31,20 @@ class Link extends Model
     }
 
     /**
+     * Whether the stored URL is an absolute http(s) URL with a host, and therefore safe to
+     * render as a clickable destination. Guards against bad data that bypassed validation.
+     */
+    public function hasSafeUrl(): bool
+    {
+        $parts = parse_url((string) $this->url);
+
+        return is_array($parts)
+            && in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
+            && filled($parts['host'] ?? null)
+            && ! preg_match('/[\s\x00-\x1F\x7F]/', (string) $this->url);
+    }
+
+    /**
      * @return BelongsTo<LinkGroup, $this>
      */
     public function linkGroup(): BelongsTo
