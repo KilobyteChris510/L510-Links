@@ -1,0 +1,24 @@
+@props(['title' => null])
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-50">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>{{ $title ? $title.' · ' : '' }}{{ config('app.name') }}</title>
+
+        @fonts
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="h-full font-sans text-slate-900 antialiased">
+        <div class="flex min-h-full flex-col items-center justify-center px-4 py-12">
+            <p class="mb-6 text-lg font-semibold tracking-tight">Link Management</p>
+
+            <div class="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                {{ $slot }}
+            </div>
+        </div>
+    </body>
+</html>
