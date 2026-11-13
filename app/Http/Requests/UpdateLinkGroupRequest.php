@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Auth\Access\Response;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class UpdateLinkGroupRequest extends FormRequest
 {
-    public function authorize(): bool
+    public function authorize(): Response
     {
-        return $this->user()->can('update', $this->route('group'));
+        return Gate::inspect('update', $this->route('group'));
     }
 
     /**

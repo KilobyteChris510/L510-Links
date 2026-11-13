@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['title', 'url', 'description', 'sort_order', 'is_active'])]
+#[Fillable(['title', 'url', 'description', 'is_active'])]
 class Link extends Model
 {
     /** @use HasFactory<LinkFactory> */

@@ -6,6 +6,10 @@
         <x-status-badge :active="$group->is_active" />
     </div>
 
+    <div class="mt-4">
+        <a href="{{ route('groups.links.index', $group) }}" class="inline-flex justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2">Manage links</a>
+    </div>
+
     <section class="mt-6 rounded-xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="public-url-heading">
         <h2 id="public-url-heading" class="text-base font-semibold">Permanent public URL</h2>
         <p class="mt-1 text-sm text-slate-600">This URL never changes, even if you rename the group, so it is safe to program onto NFC cards.</p>

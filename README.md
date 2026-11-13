@@ -2,7 +2,7 @@
 
 An in-house, Linktree-style application. Authenticated users manage collections of links; each collection will eventually have a permanent public URL suitable for programming onto an NFC card.
 
-Implemented so far: authentication, the link group data model and policies, and link group management (create, edit, activate/deactivate, soft delete, copy permanent URL). Link management, public pages, appearance customization, NFC/QR, and analytics are not implemented yet.
+Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), and link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering). Public pages, appearance customization, NFC/QR, and analytics are not implemented yet.
 
 ## Stack
 
@@ -72,6 +72,11 @@ Authentication is plain controller-based Blade auth using Laravel's built-in ser
 | `GET /groups/create`, `POST /groups` | Create a link group (slug generated from the name) |
 | `GET /groups/{group}/edit`, `PUT /groups/{group}` | Edit name, description, active status |
 | `DELETE /groups/{group}` | Soft-delete a group (links and slug are kept) |
+| `GET/POST /groups/{group}/links` | Link management screen; add a link (appended to the end) |
+| `PATCH/DELETE /groups/{group}/links/{link}` | Edit, enable/disable, or delete a link (scoped to the group) |
+| `PATCH /groups/{group}/links/order` | Save link order (JSON `{"links": [ids...]}`; must list every link exactly once) |
+
+Link URLs must be `http` or `https`. A URL entered without a scheme that looks like a domain (`example.com/page`) is saved as `https://example.com/page`; any other input is stored exactly as typed or rejected. Requests for another user's groups or links return 404.
 
 Public registration is intentionally disabled. Until an admin invite flow exists, create users with the seeder or Tinker:
 

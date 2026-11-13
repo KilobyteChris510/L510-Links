@@ -290,10 +290,10 @@ class LinkGroupManagementTest extends TestCase
         $group = LinkGroup::factory()->for($owner)->create(['name' => 'Acme', 'is_active' => true]);
         $intruder = User::factory()->create();
 
-        $this->actingAs($intruder)->get(route('groups.edit', $group))->assertForbidden();
-        $this->actingAs($intruder)->put(route('groups.update', $group), ['name' => 'Hijacked'])->assertForbidden();
-        $this->actingAs($intruder)->put(route('groups.update', $group), ['is_active' => '0'])->assertForbidden();
-        $this->actingAs($intruder)->delete(route('groups.destroy', $group))->assertForbidden();
+        $this->actingAs($intruder)->get(route('groups.edit', $group))->assertNotFound();
+        $this->actingAs($intruder)->put(route('groups.update', $group), ['name' => 'Hijacked'])->assertNotFound();
+        $this->actingAs($intruder)->put(route('groups.update', $group), ['is_active' => '0'])->assertNotFound();
+        $this->actingAs($intruder)->delete(route('groups.destroy', $group))->assertNotFound();
 
         $group->refresh();
         $this->assertSame('Acme', $group->name);

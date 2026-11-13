@@ -45,6 +45,7 @@
                         <p class="mt-1 text-xs text-slate-500">Public page coming in a later milestone.</p>
 
                         <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-3">
+                            <a href="{{ route('groups.links.index', $group) }}" class="text-sm font-semibold text-slate-900 hover:underline">Manage links</a>
                             <a href="{{ route('groups.edit', $group) }}" class="text-sm font-medium text-slate-700 hover:text-slate-900">Edit</a>
 
                             <form method="POST" action="{{ route('groups.update', $group) }}">
