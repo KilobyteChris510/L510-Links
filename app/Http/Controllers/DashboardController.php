@@ -11,6 +11,7 @@ class DashboardController extends Controller
     {
         return view('dashboard', [
             'user' => $request->user(),
+            'groups' => $request->user()->linkGroups()->withCount('links')->latest()->latest('id')->paginate(10),
         ]);
     }
 }

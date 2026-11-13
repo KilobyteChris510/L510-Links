@@ -3,7 +3,7 @@
     <p class="mt-1 text-sm text-slate-600">Enter your email and we'll send you a reset link.</p>
 
     <div class="mt-6">
-        <x-auth-status />
+        <x-status-message />
 
         <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
             @csrf

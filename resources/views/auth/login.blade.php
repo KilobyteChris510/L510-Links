@@ -3,7 +3,7 @@
     <p class="mt-1 text-sm text-slate-600">Sign in to manage your links.</p>
 
     <div class="mt-6">
-        <x-auth-status />
+        <x-status-message />
 
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf

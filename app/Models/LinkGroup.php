@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -28,6 +30,8 @@ class LinkGroup extends Model
 
     public const SLUG_MAX_LENGTH = 64;
 
+    public const SLUG_CREATE_ATTEMPTS = 3;
+
     protected $attributes = [
         'theme' => self::DEFAULT_THEME,
         'is_active' => true,
@@ -46,6 +50,35 @@ class LinkGroup extends Model
                 throw new LogicException('A link group slug cannot be changed after creation.');
             }
         });
+    }
+
+    /**
+     * Insert a new group, regenerating the slug if a concurrent request claims it
+     * between generation and insert. Each attempt runs in its own transaction (or
+     * savepoint) so a failed insert does not abort an enclosing Postgres transaction.
+     *
+     * @throws UniqueConstraintViolationException when every attempt collides
+     */
+    public function saveWithUniqueSlug(int $attempts = self::SLUG_CREATE_ATTEMPTS): void
+    {
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                DB::transaction(fn () => $this->save());
+
+                return;
+            } catch (UniqueConstraintViolationException $e) {
+                if ($attempt >= $attempts) {
+                    throw $e;
+                }
+
+                $this->slug = null;
+            }
+        }
+    }
+
+    public function publicUrl(): string
+    {
+        return url('/p/'.$this->slug);
     }
 
     /**

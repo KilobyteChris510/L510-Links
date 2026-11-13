@@ -2,7 +2,7 @@
 
 An in-house, Linktree-style application. Authenticated users manage collections of links; each collection will eventually have a permanent public URL suitable for programming onto an NFC card.
 
-This repository currently contains the bootstrap only: authentication, an authenticated dashboard, and layouts. Link groups, links, public pages, NFC/QR, and analytics are not implemented yet.
+Implemented so far: authentication, the link group data model and policies, and link group management (create, edit, activate/deactivate, soft delete, copy permanent URL). Link management, public pages, appearance customization, NFC/QR, and analytics are not implemented yet.
 
 ## Stack
 
@@ -68,7 +68,10 @@ Authentication is plain controller-based Blade auth using Laravel's built-in ser
 | `POST /logout` | Log out |
 | `GET/POST /forgot-password` | Request a password reset link |
 | `GET /reset-password/{token}`, `POST /reset-password` | Set a new password |
-| `GET /dashboard` | Authenticated dashboard |
+| `GET /dashboard` | Authenticated dashboard listing your link groups |
+| `GET /groups/create`, `POST /groups` | Create a link group (slug generated from the name) |
+| `GET /groups/{group}/edit`, `PUT /groups/{group}` | Edit name, description, active status |
+| `DELETE /groups/{group}` | Soft-delete a group (links and slug are kept) |
 
 Public registration is intentionally disabled. Until an admin invite flow exists, create users with the seeder or Tinker:
 
