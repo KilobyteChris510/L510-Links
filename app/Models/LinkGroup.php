@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -27,7 +28,7 @@ class LinkGroup extends Model
     /** @use HasFactory<LinkGroupFactory> */
     use HasFactory, SoftDeletes;
 
-    public const DEFAULT_THEME = 'default';
+    public const DEFAULT_THEME = 'light';
 
     public const SLUG_MAX_LENGTH = 64;
 
@@ -75,6 +76,72 @@ class LinkGroup extends Model
                 $this->slug = null;
             }
         }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function appearanceKeys(): array
+    {
+        return [...array_keys(config('appearance.colors')), 'button_shape'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function themeDefaults(string $theme): array
+    {
+        return Arr::only(config('appearance.themes.'.$theme), static::appearanceKeys());
+    }
+
+    /**
+     * The stored theme, or the default theme when the stored value is unknown.
+     */
+    public function appearanceTheme(): string
+    {
+        return array_key_exists((string) $this->theme, config('appearance.themes'))
+            ? $this->theme
+            : config('appearance.default_theme');
+    }
+
+    /**
+     * Theme defaults merged with saved overrides. Stored values are re-validated so
+     * malformed data can never reach the rendered CSS.
+     *
+     * @return array<string, string>
+     */
+    public function appearanceSettings(): array
+    {
+        $settings = static::themeDefaults($this->appearanceTheme());
+
+        foreach ((array) $this->appearance as $key => $value) {
+            $valid = $key === 'button_shape'
+                ? is_string($value) && array_key_exists($value, config('appearance.button_shapes'))
+                : array_key_exists($key, config('appearance.colors')) && is_string($value) && preg_match('/^#[0-9a-f]{6}$/i', $value);
+
+            if ($valid) {
+                $settings[$key] = strtolower($value);
+            }
+        }
+
+        return $settings;
+    }
+
+    /**
+     * CSS custom properties consumed by the link-page component.
+     */
+    public function appearanceStyle(): string
+    {
+        $settings = $this->appearanceSettings();
+        $declarations = [];
+
+        foreach (array_keys(config('appearance.colors')) as $key) {
+            $declarations[] = '--lg-'.str_replace('_', '-', $key).': '.$settings[$key];
+        }
+
+        $declarations[] = '--lg-button-radius: '.config('appearance.button_shapes.'.$settings['button_shape'].'.radius');
+
+        return implode('; ', $declarations);
     }
 
     public const AVATAR_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];

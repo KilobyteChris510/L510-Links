@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\LinkGroupAppearanceController;
 use App\Http\Controllers\LinkGroupController;
 use App\Http\Controllers\LinkOrderController;
 use App\Http\Controllers\PublicLinkGroupController;
@@ -31,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('groups', LinkGroupController::class)->except(['index', 'show']);
+
+    Route::get('/groups/{group}/appearance', [LinkGroupAppearanceController::class, 'edit'])->name('groups.appearance.edit');
+    Route::put('/groups/{group}/appearance', [LinkGroupAppearanceController::class, 'update'])->name('groups.appearance.update');
 
     Route::patch('/groups/{group}/links/order', LinkOrderController::class)->name('groups.links.order');
 

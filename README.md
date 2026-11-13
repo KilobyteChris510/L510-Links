@@ -2,7 +2,7 @@
 
 An in-house, Linktree-style application. Authenticated users manage collections of links; each collection will eventually have a permanent public URL suitable for programming onto an NFC card.
 
-Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), and link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering), and public pages at `/p/{slug}`. Appearance customization, NFC/QR, and analytics are not implemented yet.
+Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering), public pages at `/p/{slug}`, and appearance customization (themes, colors, button shape, profile image). NFC/QR and analytics are not implemented yet.
 
 ## Stack
 
@@ -90,7 +90,13 @@ php artisan tinker
 >>> App\Models\User::create(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'password' => 'a-strong-password']);
 ```
 
-## Data model
+## Appearance
+
+`GET/PUT /groups/{group}/appearance` (`groups.appearance.*`, `LinkGroupAppearanceController`) lets the owner pick a theme (Light, Dark, Warm), override four colors (`#rrggbb`) and the button shape (rounded, pill, square), and upload a profile image, with a live Alpine.js preview. Themes, color keys, and shapes are defined only in `config/appearance.php`. `link_groups.theme` stores the theme and `link_groups.appearance` stores only the values that differ from that theme; choosing a different theme resets the overrides. The public page and the preview render the same `x-link-page` component, styled through `--lg-*` CSS custom properties, so the public page still needs no JavaScript.
+
+Profile images: JPEG, PNG, or WebP up to 2 MB (checked by file content). Uploads are decoded and re-encoded with GD as a square WebP (max 512x512, metadata stripped) under `storage/app/public/avatars/{uuid}.webp`. The old file is deleted only after the new one is saved; removing an image deletes its file. PHP's `upload_max_filesize` and `post_max_size` must be at least 2 MB (3 MB recommended) for the limit to be reached; the editor also rejects larger files before uploading.
+
+$1
 
 - `link_groups` — owned by a user; published at `/p/{slug}`. Slugs are generated from the name at creation (`acme-co`, `acme-co-2`, ...), are unique across all rows including soft-deleted ones, and can never be changed. Groups are soft-deleted only (`forceDelete` is denied by policy), and a user who owns groups cannot be hard-deleted (`ON DELETE RESTRICT`), so issued URLs are never freed.
 - `links` — belong to one group, ordered by `sort_order` then `id`. Soft-deleting a group keeps its links so a restore brings them back; they are removed only if the group is hard-deleted (`ON DELETE CASCADE`).

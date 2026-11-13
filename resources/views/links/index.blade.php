@@ -6,7 +6,10 @@
 <x-layouts.app :title="'Links · '.$group->name">
     <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
         <a href="{{ route('dashboard') }}" class="text-slate-600 hover:text-slate-900">&larr; Back to dashboard</a>
-        <a href="{{ route('groups.edit', $group) }}" class="font-medium text-slate-700 hover:text-slate-900">Group settings</a>
+        <span class="flex gap-4">
+            <a href="{{ route('groups.appearance.edit', $group) }}" class="font-medium text-slate-700 hover:text-slate-900">Appearance</a>
+            <a href="{{ route('groups.edit', $group) }}" class="font-medium text-slate-700 hover:text-slate-900">Group settings</a>
+        </span>
     </div>
 
     <div class="mt-4 flex flex-wrap items-center gap-3">

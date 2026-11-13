@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'canonical' => null])
+@props(['title' => null, 'description' => null, 'canonical' => null, 'themeColor' => null])
 
 {{-- Layout for public link pages. Free of app navigation, auth state, and JavaScript. --}}
 <!DOCTYPE html>
@@ -21,11 +21,14 @@
         @if ($description)
             <meta property="og:description" content="{{ $description }}">
         @endif
+        @if ($themeColor)
+            <meta name="theme-color" content="{{ $themeColor }}">
+        @endif
 
         @fonts
         @vite('resources/css/app.css')
     </head>
-    <body {{ $attributes->merge(['class' => 'min-h-full bg-slate-100 font-sans text-slate-900 antialiased']) }}>
+    <body {{ $attributes->merge(['class' => 'min-h-full font-sans antialiased']) }}>
         <main class="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 py-10 sm:py-16">
             {{ $slot }}
         </main>
