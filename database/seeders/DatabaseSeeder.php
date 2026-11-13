@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // The well-known test account is for local development only.
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
 
         User::factory()->create([
             'name' => 'Test User',

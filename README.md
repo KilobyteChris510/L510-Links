@@ -77,6 +77,18 @@ php artisan tinker
 >>> App\Models\User::create(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'password' => 'a-strong-password']);
 ```
 
+## Data model
+
+- `link_groups` — owned by a user; published later at `/p/{slug}`. Slugs are generated from the name at creation (`acme-co`, `acme-co-2`, ...), are unique across all rows including soft-deleted ones, and can never be changed. Groups are soft-deleted only (`forceDelete` is denied by policy), and a user who owns groups cannot be hard-deleted (`ON DELETE RESTRICT`), so issued URLs are never freed.
+- `links` — belong to one group, ordered by `sort_order` then `id`. Soft-deleting a group keeps its links so a restore brings them back; they are removed only if the group is hard-deleted (`ON DELETE CASCADE`).
+- Authorization: `LinkGroupPolicy` (owner only) and `LinkPolicy` (owner of the link's group; links in soft-deleted groups are denied).
+
+Sample data for an existing user (default `test@example.com`, override with `SEED_USER_EMAIL`):
+
+```bash
+php artisan db:seed --class=LinkGroupSeeder
+```
+
 ## Project layout
 
 - `routes/web.php`, `routes/auth.php` — application and auth routes
