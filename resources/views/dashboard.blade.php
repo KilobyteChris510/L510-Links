@@ -48,6 +48,7 @@
                             <a href="{{ route('groups.links.index', $group) }}" class="text-sm font-semibold text-slate-900 hover:underline">Manage links</a>
                             <a href="{{ route('groups.edit', $group) }}" class="text-sm font-medium text-slate-700 hover:text-slate-900">Edit</a>
                             <a href="{{ route('groups.appearance.edit', $group) }}" class="text-sm font-medium text-slate-700 hover:text-slate-900">Appearance</a>
+                            <a href="{{ route('groups.share.show', $group) }}" class="text-sm font-medium text-slate-700 hover:text-slate-900">Share</a>
 
                             <form method="POST" action="{{ route('groups.update', $group) }}">
                                 @csrf

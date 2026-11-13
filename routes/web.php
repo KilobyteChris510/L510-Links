@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LinkGroupAppearanceController;
 use App\Http\Controllers\LinkGroupController;
+use App\Http\Controllers\LinkGroupShareController;
 use App\Http\Controllers\LinkOrderController;
 use App\Http\Controllers\PublicLinkGroupController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -35,6 +36,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/groups/{group}/appearance', [LinkGroupAppearanceController::class, 'edit'])->name('groups.appearance.edit');
     Route::put('/groups/{group}/appearance', [LinkGroupAppearanceController::class, 'update'])->name('groups.appearance.update');
+
+    Route::get('/groups/{group}/share', [LinkGroupShareController::class, 'show'])->name('groups.share.show');
+    Route::get('/groups/{group}/qr.svg', [LinkGroupShareController::class, 'downloadSvg'])->name('groups.qr.svg');
+    Route::get('/groups/{group}/qr.png', [LinkGroupShareController::class, 'downloadPng'])->name('groups.qr.png');
 
     Route::patch('/groups/{group}/links/order', LinkOrderController::class)->name('groups.links.order');
 

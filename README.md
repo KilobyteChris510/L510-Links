@@ -2,7 +2,7 @@
 
 An in-house, Linktree-style application. Authenticated users manage collections of links; each collection will eventually have a permanent public URL suitable for programming onto an NFC card.
 
-Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering), public pages at `/p/{slug}`, and appearance customization (themes, colors, button shape, profile image). NFC/QR and analytics are not implemented yet.
+Implemented so far: authentication, the link group data model and policies, link group management (create, edit, activate/deactivate, soft delete, copy permanent URL), link management (add, inline edit, enable/disable, delete, drag-and-drop or Move up/down ordering), public pages at `/p/{slug}`, appearance customization (themes, colors, button shape, profile image), and a sharing page with QR code downloads. NFC card management and analytics are not implemented (cards are written with external software).
 
 ## Stack
 
@@ -96,7 +96,18 @@ php artisan tinker
 
 Profile images: JPEG, PNG, or WebP up to 2 MB (checked by file content). Uploads are decoded and re-encoded with GD as a square WebP (max 512x512, metadata stripped) under `storage/app/public/avatars/{uuid}.webp`. The old file is deleted only after the new one is saved; removing an image deletes its file. PHP's `upload_max_filesize` and `post_max_size` must be at least 2 MB (3 MB recommended) for the limit to be reached; the editor also rejects larger files before uploading.
 
-$1
+## Sharing and QR codes
+
+`GET /groups/{group}/share` (`groups.share.show`) shows the permanent public URL with copy and open actions, a QR code preview, and NFC instructions. `GET /groups/{group}/qr.svg` and `/qr.png` (`groups.qr.svg`, `groups.qr.png`) download the QR code as `{slug}-qr.svg` / `{slug}-qr.png`. All three are owner-only (404 for anyone else) and also work for inactive groups, whose sharing page warns that the URL returns 404 until the group is reactivated.
+
+QR codes are generated on demand with [`chillerlan/php-qrcode`](https://github.com/chillerlan/php-qrcode) (MIT/Apache-2.0; its only dependency is `chillerlan/php-settings-container`). They always encode exactly `LinkGroup::publicUrl()`, use black modules on white, a 4-module quiet zone, and error correction level M, and are never stored. SVG is preferred for print; PNG (about 1,100px) needs the PHP `gd` extension, which `composer.json` now requires (`ext-gd`, also used for avatars).
+
+**NFC cards:** the app does not program cards. Copy the URL from the sharing page, write it as a URL/URI record with any NFC writing app, and test the card with a phone before locking it.
+
+**Deployment:** URLs are built from `APP_URL`. Set it to the final production domain (with `https://`) before downloading QR codes or writing cards; codes and cards made with a local or staging URL will not work in production.
+
+## Data model
+
 
 - `link_groups` — owned by a user; published at `/p/{slug}`. Slugs are generated from the name at creation (`acme-co`, `acme-co-2`, ...), are unique across all rows including soft-deleted ones, and can never be changed. Groups are soft-deleted only (`forceDelete` is denied by policy), and a user who owns groups cannot be hard-deleted (`ON DELETE RESTRICT`), so issued URLs are never freed.
 - `links` — belong to one group, ordered by `sort_order` then `id`. Soft-deleting a group keeps its links so a restore brings them back; they are removed only if the group is hard-deleted (`ON DELETE CASCADE`).
